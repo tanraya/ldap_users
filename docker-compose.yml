@@ -6,12 +6,12 @@ services:
       context: .
       dockerfile: ./src/frontend/Dockerfile
     volumes:
-      - ./src/frontend:/usr/src/frontend
+      - ./src/frontend/src:/usr/src/frontend/src
+      - ./src/frontend/public:/usr/src/frontend/public
     ports:
       - '3000:3000'
     environment:
       - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
     networks:
       - webservices
 
