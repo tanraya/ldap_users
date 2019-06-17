@@ -1,0 +1,7 @@
+development:
+  host: openldap
+  port: 389
+  auth:
+    method: simple
+    username: cn=admin,dc=acme,dc=com
+    password: admin

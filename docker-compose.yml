@@ -1,0 +1,60 @@
+version: '3.7'
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: ./src/frontend/Dockerfile
+    volumes:
+      - ./src/frontend:/usr/src/frontend
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - webservices
+
+  backend:
+    container_name: sinatra-app
+    build:
+      context: .
+      dockerfile: ./src/backend/Dockerfile
+    environment:
+      - MAIN_APP_FILE=/usr/src/app/index.rb
+      - RACK_ENV=development
+    ports:
+      - '9000:9000'
+    volumes:
+      - ./src/backend:/usr/src/backend
+    depends_on:
+      - openldap
+    networks:
+      - webservices
+      - openldap
+
+  openldap:
+    container_name: openldap
+    image: osixia/openldap:1.2.4
+    ports:
+      - 389:389
+      - 636:636
+    command: [--copy-service]
+    environment:
+      - LDAP_ORGANISATION=ACME
+      - LDAP_DOMAIN=acme.com
+      - LDAP_ADMIN_PASSWORD=admin
+      - LDAP_TLS=false
+    volumes:
+      - ./backup:/data/backup
+      - ./data:/var/lib/openldap
+      - ./config:/etc/openldap/slapd.d
+      - ./ldif/bootstrap.ldif:/container/service/slapd/assets/config/bootstrap/ldif/50-bootstrap.ldif
+    networks:
+      - openldap
+
+networks:
+  openldap:
+    driver: bridge
+  webservices:
+    driver: bridge
